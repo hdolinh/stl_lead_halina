@@ -1,0 +1,81 @@
+---
+title: "EDS 221 Day 1 Activities"
+author: "Halina Do-Linh"
+date: "8/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(here)
+library(tidyverse)
+library(janitor)
+library(skimr)
+```
+
+## Read in the stl_blood_lead.csv data as stl_lead in your R Markdown
+```{r}
+
+stl_lead <- read_csv(here::here("data", "stl_blood_lead.csv"), skip = 1) %>% 
+  clean_names() %>% 
+  mutate(prop_white = white / total_pop * 100) %>% 
+  mutate(pct_elevated = str_replace(pct_elevated, 
+                                    pattern = ",", 
+                                    replacement = ".")) %>% 
+  mutate(pct_elevated = as.numeric(pct_elevated))
+
+# line one is reading in the data
+# cleaned up column names using clean names
+# mutate () to add a new column
+# mutate() again to replace , with .
+# mutate() again to replace class type with numeric with character
+# use class(stl_lead$pct_elevated) to check that the class change happened
+# used skip = 1 because the original csv file starts with a row that is one column
+# using skip = 1 means R ignores the first row and then it will recognize there are other columns in the csv. 
+# we are doing data wrangling in one step now ayyy
+
+```
+
+## Do some basic exploration of the dataset
+```{r}
+
+problems(stl_lead)
+names(stl_lead)
+
+```
+
+## Make a graph
+
+The higher percentage of lead in your blood, the less likely you are White. 
+```{r}
+
+stl_lead_plot <- ggplot(data = stl_lead, 
+                        aes(x = pct_elevated, y = prop_white)) +
+  geom_point(aes(color = pct_elevated)) +
+  scale_color_gradient(low = "blue", high = "orange") +
+  labs(x = "Percentage of Lead in Blood", y = "Percentage of Lead in Blood of White Populations", title = "Lead in Blood in White Populations")
+
+stl_lead_plot
+
+ggsave(here::here("figs", "stl_lead_plot.jpg"))
+
+ggsave(here::here("figs", "stl_lead_plot.png"), height = 5, width = 6)
+
+```
+
+## Create a histogram!
+```{r}
+
+stl_lead_hist <- ggplot(data = stl_lead, 
+       aes(x = pct_elevated)) +
+  geom_histogram(fill = "blue", color = "red") +
+  labs(x = "Percentage of Lead in Blood in Populations", y = " ", title = "Percentage of Elevated Levels of Lead in Populations")
+
+stl_lead_hist
+
+
+ggsave(here::here("figs", "stl_lead_hist.jpg"), height = 7, width = 7)
+
+
+```
+
